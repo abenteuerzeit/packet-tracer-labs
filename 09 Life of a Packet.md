@@ -150,13 +150,38 @@ Destination: PC4 FastEthernet NIC 000C.8544.4444
 
 
 ## PC1 pings PC3.
-Identify the src/dst MAC address at each specified point in the route to PC3.
-Identify the MAC address by the device and interface (ie. the MAC of R1 G0/0)
+
+### Identify the src/dst MAC address at each specified point in the route to PC3. Identify the MAC address by the device and interface (ie. the MAC of R1 G0/0)
+
 A. Source/Destination MAC at PC1 → SW1
 B. Source/Destination MAC at SW1 → PC3
 
 Use the CLI and Packet Tracer's simulation mode to verify your answers.
 (Before you enter simulation mode, ping once to complete ARP/the MAC learning process.)
+
+
+| Node | IPv4        | MAC            |
+|------|-------------|----------------|
+| PC1  | 192.168.1.1 | 00D0.BA11.1111 |
+| PC3  | 192.168.1.3 | 0010.1133.3333 |
+
+#### PC1-SW1
+
+```
+C:\>arp -a
+  Internet Address      Physical Address      Type
+  192.168.1.3           0010.1133.3333        dynamic
+```
+
+Source: PC1 NIC 00D0.BA11.1111
+Desitnation: PC3 NIC 0010.1133.3333
+
+#### SW1-PC3
+
+Source: PC1 NIC 00D0.BA11.1111
+Desitnation: PC3 NIC 0010.1133.3333
+
+> The source and destination MAC addresses are the same on links PC1 to SW1 Fa0/1 and SW1 Fa0/3 to PC3
 
 ## PC4 pings PC1.
 Identify the src/dst MAC address at each specified point in the route to PC1.

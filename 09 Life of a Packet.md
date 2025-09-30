@@ -184,7 +184,180 @@ Desitnation: PC3 NIC 0010.1133.3333
 > The source and destination MAC addresses are the same on links PC1 to SW1 Fa0/1 and SW1 Fa0/3 to PC3
 
 ## PC4 pings PC1.
-Identify the src/dst MAC address at each specified point in the route to PC1.
-Identify the MAC address by the device and interface (ie. the MAC of R1 G0/0).
 
-WRITE YOUR ANSWERS IN THE COMMENT SECTION OF THE VIDEO :)
+### Identify the src/dst MAC address at each specified point in the route to PC1. Identify the MAC address by the device and interface (ie. the MAC of R1 G0/0).
+
+PC4
+```
+C:\>ipconfig /all
+
+FastEthernet0 Connection:(default port)
+
+   Connection-specific DNS Suffix..: 
+   Physical Address................: 000C.8544.4444
+   Link-local IPv6 Address.........: FE80::20C:85FF:FEC4:BDB4
+   IPv6 Address....................: ::
+   IPv4 Address....................: 192.168.3.1
+   Subnet Mask.....................: 255.255.255.0
+   Default Gateway.................: ::
+                                     192.168.3.254
+   DHCP Servers....................: 0.0.0.0
+   DHCPv6 IAID.....................: 
+   DHCPv6 Client DUID..............: 00-01-00-01-2D-AC-7E-D8-00-0C-85-44-44-44
+   DNS Servers.....................: ::
+                                     0.0.0.0
+
+C:\>arp -a
+  Internet Address      Physical Address      Type
+  192.168.3.254         0000.01ff.ffff        dynamic
+```
+
+PC1
+```
+C:\>ipconfig /all
+
+FastEthernet0 Connection:(default port)
+
+Connection-specific DNS Suffix..: 
+   Physical Address................: 00D0.BA11.1111
+   Link-local IPv6 Address.........: FE80::2D0:BAFF:FEE1:6988
+   IPv6 Address....................: ::
+   IPv4 Address....................: 192.168.1.1
+   Subnet Mask.....................: 255.255.255.0
+   Default Gateway.................: ::
+                                     192.168.1.254
+   DHCP Servers....................: 0.0.0.0
+   DHCPv6 IAID.....................: 
+   DHCPv6 Client DUID..............: 00-01-00-01-09-99-E5-2C-00-D0-BA-11-11-11
+   DNS Servers.....................: ::
+                                     0.0.0.0
+
+C:\>arp -a
+  Internet Address      Physical Address      Type
+  192.168.1.254         0000.01aa.aaaa        dynamic
+
+```
+
+#### PC4-SW2
+
+```
+SW2>show mac address-table 
+          Mac Address Table
+-------------------------------------------
+
+Vlan    Mac Address       Type        Ports
+----    -----------       --------    -----
+
+   1    0000.01ff.ffff    DYNAMIC     Gig0/1
+   1    000c.8544.4444    DYNAMIC     Fa0/1
+```
+
+Source: PC4 FastEhternet NIC 000C.8544.4444
+
+Destination: R3 Gi0/1 0000.01ff.ffff
+
+#### SW2-R3
+
+```
+R3>show arp 
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  192.168.3.1             1   000C.8544.4444  ARPA   GigabitEthernet0/1
+Internet  192.168.3.254           -   0000.01FF.FFFF  ARPA   GigabitEthernet0/1
+Internet  192.168.13.2            1   0000.01DD.DDDD  ARPA   GigabitEthernet0/0
+Internet  192.168.13.3            -   0000.01EE.EEEE  ARPA   GigabitEthernet0/0
+
+R3>show interfaces Gi0/1
+GigabitEthernet0/1 is up, line protocol is up (connected)
+  Hardware is CN Gigabit Ethernet, address is 0000.01ff.ffff (bia 0010.11e1.2302)
+```
+
+Source: PC4 FastEhternet NIC 000C.8544.4444
+
+Destination: R3 Gi0/1 0000.01ff.ffff
+
+#### R3-R2
+
+```
+R3#show int g0/0
+GigabitEthernet0/0 is up, line protocol is up (connected)
+  Hardware is CN Gigabit Ethernet, address is 0000.01ee.eeee (bia 0010.11e1.2301)
+  Internet address is 192.168.13.3/24
+```
+
+```
+R2#show int gi0/1
+GigabitEthernet0/1 is up, line protocol is up (connected)
+  Hardware is CN Gigabit Ethernet, address is 0000.01dd.dddd (bia 0001.4220.a502)
+  Internet address is 192.168.13.2/24
+
+R2>show arp
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  192.168.12.1            3   0000.01BB.BBBB  ARPA   GigabitEthernet0/0
+Internet  192.168.12.2            -   0000.01CC.CCCC  ARPA   GigabitEthernet0/0
+Internet  192.168.13.2            -   0000.01DD.DDDD  ARPA   GigabitEthernet0/1
+Internet  192.168.13.3            3   0000.01EE.EEEE  ARPA   GigabitEthernet0/1
+```
+
+Source: R3 Gi0/0 0000.01ee.eeee
+
+Destination: R2 Gi0/1 0000.01dd.dddd
+
+#### R2-R1
+
+```
+R2#show int g0/0
+GigabitEthernet0/0 is up, line protocol is up (connected)
+  Hardware is CN Gigabit Ethernet, address is 0000.01cc.cccc (bia 0001.4220.a501)
+  Internet address is 192.168.12.2/24
+```
+
+```
+R1#show int g0/1
+GigabitEthernet0/1 is up, line protocol is up (connected)
+  Hardware is CN Gigabit Ethernet, address is 0000.01bb.bbbb (bia 00d0.ff77.0102)
+  Internet address is 192.168.12.1/24
+
+R1>show arp
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  192.168.1.1             3   00D0.BA11.1111  ARPA   GigabitEthernet0/0
+Internet  192.168.1.254           -   0000.01AA.AAAA  ARPA   GigabitEthernet0/0
+Internet  192.168.12.1            -   0000.01BB.BBBB  ARPA   GigabitEthernet0/1
+Internet  192.168.12.2            3   0000.01CC.CCCC  ARPA   GigabitEthernet0/1
+```
+
+Source: R2 Gi0/0 0000.01cc.cccc
+
+Destination: R1 Gi0/1 0000.01bb.bbbb
+
+#### R1-SW1
+
+```
+R1#show int g0/0
+GigabitEthernet0/0 is up, line protocol is up (connected)
+  Hardware is CN Gigabit Ethernet, address is 0000.01aa.aaaa (bia 00d0.ff77.0101)
+  Internet address is 192.168.1.254/24
+```
+
+
+```
+SW1>show mac address-table 
+          Mac Address Table
+-------------------------------------------
+
+Vlan    Mac Address       Type        Ports
+----    -----------       --------    -----
+
+   1    0000.01aa.aaaa    DYNAMIC     Gig0/1
+   1    00d0.ba11.1111    DYNAMIC     Fa0/1
+```
+
+Source: R1 Gi0/0 0000.01aa.aaaa
+
+Destination: PC1 FastEthernet NIC 00D0.BA11.1111
+
+#### SW-PC1
+
+
+Source: R1 Gi0/0 0000.01aa.aaaa
+
+Destination: PC1 FastEthernet NIC 00D0.BA11.1111
